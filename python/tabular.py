@@ -1,0 +1,120 @@
+import pandas as pd
+
+def transpose_table(pdf: pd.DataFrame, var: str, row_var: list , column_var: str, function: str, rename_cols=True) -> pd.DataFrame:
+
+  """
+  Gets the transpose(pivot) of a dataframe with option to rename the resultant columns
+
+  Args:
+      pdf (pd.DataFrame): Input pandas dataframe
+      var (str): The column whose values will be calculated
+      row_var (list): List of key columns
+      column_var (str): The column whose distinct values will comprise the columns
+      function (str): The aggregate function
+      rename_cols (bool): Option to rename the column, default=True
+
+  Returns:
+      pd.DataFrame: A transformed dataframe with the first columns as columns specified in the row_var list and the other columns belonging to the categories of the column_var
+  """
+  df = pd.pivot_table(pdf, values= var, index= row_var, columns= column_var, aggfunc= function).reset_index()
+  if rename_cols==True:
+    return df.rename(columns={c: var+'_'+c for c in df.columns if c not in row_var})
+  else:
+    return df
+  
+def agg_cols(pdf: pd.DataFrame, col_list: list, func: str, skipna: bool = True) -> pd.Series:
+  """
+  Aggregate a list of columns
+
+  Args:
+      pdf (pd.DataFrame): Input pandas dataframe
+      col_list (list): List of columns to aggregate
+      func (str): The aggregate function
+      skipna (bool): skip NA, default = True
+  
+  Returns:
+     pd.Series: A pandas series with values which is the sum along the columns
+
+  Raise:
+      ValueError: When func is not any of sum, avg, max, min
+  """
+
+  if func == 'sum':
+    return pdf[col_list].sum(axis=1, skipna = skipna)
+  elif func == 'avg':
+    return pdf[col_list].mean(axis=1, skipna = skipna)
+  elif func == 'max':
+    return pdf[col_list].max(axis=1, skipna = skipna)
+  elif func == 'min':
+    return pdf[col_list].min(axis=1, skipna = skipna)
+  else:
+    raise ValueError('func only takes values: sum, avg, max, min')
+  
+def agg_cols_pos(pdf: pd.DataFrame, string: str, position: str, func: str) -> pd.Series:
+  """
+  Aggregate by columns where the columns have a common string
+
+  Args:
+      pdf (pd.DataFrame): Input pandas dataframe
+      string (str): The common string to select columns
+      position (str): The position of the string to search
+      func (str): The aggregate function
+  
+  Returns:
+     pd.Series: A pandas series with values which is the sum along the columns
+
+  Raise:
+      ValueError: When the position is not any of starts, ends, contains
+      ValueError: When func is not any of sum, avg, max, min
+  """
+  if position == 'starts':
+    l = [c for c in pdf.columns if c.startswith(string)]
+  elif position == 'ends':
+    l = [c for c in pdf.columns if c.endswith(string)]
+  elif position == 'contains':
+    l = [c for c in pdf.columns if string in c]
+  else:
+    raise ValueError('positiion only takes values: starts, ends, contains')
+
+  if func == 'sum':
+    return pdf[l].sum(axis=1)
+  elif func == 'avg':
+    return pdf[l].mean(axis=1)
+  elif func == 'max':
+    return pdf[l].max(axis=1)
+  elif func == 'min':
+    return pdf[l].min(axis=1)
+  else:
+    raise ValueError('func only takes values: sum, avg, max, min')
+
+def clean_date(pdf: pd.DataFrame, date_var: str) -> pd.Series:
+  return pdf[date_var].apply(lambda x: x[0:10])
+
+def string_to_date(pdf: pd.DataFrame, date_var: str) -> pd.Series:
+
+  """
+  Converts a string date column having 'YYYY-MM-DD' to datetime column
+
+  Args:
+      pdf (pd.DataFrame): Input pandas dataframe
+      date_var (str): Date column in string format
+
+  Returns:
+      pd.Series: A pandas series in datetime type
+  """
+  return pdf[date_var].apply(lambda x: pd.to_datetime(x,errors='coerce',format='%Y-%m-%d'))
+
+def date_to_month(pdf: pd.DataFrame, date_var: str) -> pd.Series:
+
+  """
+  Converts a datetime column to 'YYYYMM' string format
+
+  Args:
+      pdf (pd.DataFrame): Input pandas dataframe
+      date_var (str): The datetime column to be converted
+
+  Returns:
+      pd.Series: A pandas series in string type
+
+  """
+  return pdf[date_var].apply(lambda x: x.strftime('%Y%m') if x is not pd.NaT else x)
