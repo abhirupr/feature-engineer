@@ -95,16 +95,17 @@ def rolling_aggregate(pdf: pd.DataFrame, var: str, n: int, func: str, key_var: s
 
     Args:
         pdf (pd.DataFrame): Input pandas dataframe.
+        var (str): Column to aggragate
         n (int): Number of periods to be considered for calculating the aggregate
         func (str): Aggregate function
         key_var (str): Key column
         time_var (str): The time variable
 
     Returns:
-        pyspark.sql.dataframe.DataFrame: The original DataFrame adding the output aggregate column
+        pd.DataFrame: The original DataFrame adding the output aggregate column
 
     Raises:
-        ValueError: When the func is not any of the values: avg, min, max, median, std
+        ValueError: When the func is not any of the values: sum, avg, max, min, med, std
 
   """
 
