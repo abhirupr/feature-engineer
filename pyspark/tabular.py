@@ -92,23 +92,25 @@ def rolling_aggregate(pdf: pyspark.sql.dataframe.DataFrame,var: str,n: int,func:
         pyspark.sql.dataframe.DataFrame: The original DataFrame adding the output aggregate column
 
     Raises:
-        ValueError: When the func is not any of the values: avg, min, max, median, std
+        ValueError: When the func is not any of the values: avg, min, max, med, std
 
   """
   from pyspark.sql.window import Window
   w = Window().partitionBy(key_var).orderBy(time_var).rowsBetween(-n+1, 0)
   if func == 'avg':
-    return pdf.withColumn(f'avg_{var}_{n}', F.avg(var).over(w))
+    return pdf.withColumn(f'{func}_{var}_{n}', F.avg(var).over(w))
   elif func == 'max':
-    return pdf.withColumn(f'max_{var}_{n}', F.max(var).over(w))
+    return pdf.withColumn(f'{func}_{var}_{n}', F.max(var).over(w))
   elif func == 'min':
-    return pdf.withColumn(f'min_{var}_{n}', F.min(var).over(w))
-  elif func == 'median':
-    return pdf.withColumn(f'median_{var}_{n}', F.percentile_approx(var, 0.5, accuracy=1000000).over(w))
+    return pdf.withColumn(f'{func}_{var}_{n}', F.min(var).over(w))
+  elif func == 'med':
+    return pdf.withColumn(f'{func}_{var}_{n}', F.percentile_approx(var, 0.5, accuracy=1000000).over(w))
   elif func == 'std':
-    return pdf.withColumn(f'std_{var}_{n}', F.std(var).over(w))
+    return pdf.withColumn(f'{func}_{var}_{n}', F.std(var).over(w))
+  elif func == 'sum':
+    return pdf.withColumn(f'{func}_{var}_{n}', F.sum(var).over(w))
   else:
-    raise ValueError("func only takes values: avg, min, max, median, std")
+    raise ValueError("func only takes values: sum, avg, min, max, med, std")
 
 
 def rolling_aggregate_pre(pdf: pyspark.sql.dataframe.DataFrame,var: str,n: int,func: str,key_var: str,time_var: str) -> pyspark.sql.dataframe.DataFrame:
@@ -130,23 +132,25 @@ def rolling_aggregate_pre(pdf: pyspark.sql.dataframe.DataFrame,var: str,n: int,f
         pyspark.sql.dataframe.DataFrame: The original DataFrame adding the output aggregate column
 
     Raises:
-        ValueError: When the func is not any of the values: avg, min, max, median, std
+        ValueError: When the func is not any of the values: avg, min, max, med, std
 
   """
   from pyspark.sql.window import Window
   w = Window().partitionBy(key_var).orderBy(time_var).rowsBetween(-2*n+1, -n)
   if func == 'avg':
-    return pdf.withColumn(f'avg_{var}_{n}_pre', F.avg(var).over(w))
+    return pdf.withColumn(f'{func}_{var}_{n}_pre', F.avg(var).over(w))
   elif func == 'max':
-    return pdf.withColumn(f'max_{var}_{n}_pre', F.max(var).over(w))
+    return pdf.withColumn(f'{func}_{var}_{n}_pre', F.max(var).over(w))
   elif func == 'min':
-    return pdf.withColumn(f'min_{var}_{n}_pre', F.min(var).over(w))
-  elif func == 'median':
-    return pdf.withColumn(f'median_{var}_{n}_pre', F.percentile_approx(var, 0.5, accuracy=1000000).over(w))
+    return pdf.withColumn(f'{func}_{var}_{n}_pre', F.min(var).over(w))
+  elif func == 'med':
+    return pdf.withColumn(f'{func}_{var}_{n}_pre', F.percentile_approx(var, 0.5, accuracy=1000000).over(w))
   elif func == 'std':
-    return pdf.withColumn(f'std_{var}_{n}_pre', F.std(var).over(w))
+    return pdf.withColumn(f'{func}_{var}_{n}_pre', F.std(var).over(w))
+  elif func == 'sum':
+    return pdf.withColumn(f'{func}_{var}_{n}_pre', F.sum(var).over(w))
   else:
-    raise ValueError("func only takes values: avg, min, max, median, std")
+    raise ValueError("func only takes values: avg, min, max, med, std")
 
 def rolling_aggregate_dynm(pdf: pyspark.sql.dataframe.DataFrame,var: str,n: int, k=int,func: str,key_var: str,time_var: str) -> pyspark.sql.dataframe.DataFrame:
 
@@ -168,23 +172,25 @@ def rolling_aggregate_dynm(pdf: pyspark.sql.dataframe.DataFrame,var: str,n: int,
         pyspark.sql.dataframe.DataFrame: The original DataFrame adding the output aggregate column
 
     Raises:
-        ValueError: When the func is not any of the values: avg, min, max, median, std
+        ValueError: When the func is not any of the values: avg, min, max, med, std
 
   """
   from pyspark.sql.window import Window
   w = Window().partitionBy(key_var).orderBy(time_var).rowsBetween(-n-k+1, -k)
   if func == 'avg':
-    return pdf.withColumn(f'avg_{var}_{n}_pre_{k}', F.avg(var).over(w))
+    return pdf.withColumn(f'{func}_{var}_{n}_pre_{k}', F.avg(var).over(w))
   elif func == 'max':
-    return pdf.withColumn(f'max_{var}_{n}_pre_{k}', F.max(var).over(w))
+    return pdf.withColumn(f'{func}_{var}_{n}_pre_{k}', F.max(var).over(w))
   elif func == 'min':
-    return pdf.withColumn(f'min_{var}_{n}_pre_{k}', F.min(var).over(w))
-  elif func == 'median':
-    return pdf.withColumn(f'median_{var}_{n}_pre_{k}', F.percentile_approx(var, 0.5, accuracy=1000000).over(w))
+    return pdf.withColumn(f'{func}_{var}_{n}_pre_{k}', F.min(var).over(w))
+  elif func == 'med':
+    return pdf.withColumn(f'{func}_{var}_{n}_pre_{k}', F.percentile_approx(var, 0.5, accuracy=1000000).over(w))
   elif func == 'std':
-    return pdf.withColumn(f'std_{var}_{n}_pre_{k}', F.std(var).over(w))
+    return pdf.withColumn(f'{func}_{var}_{n}_pre_{k}', F.std(var).over(w))
+  elif func == 'sum':
+    return pdf.withColumn(f'{func}_{var}_{n}_pre_{k}', F.sum(var).over(w))
   else:
-    raise ValueError("func only takes values: avg, min, max, median, std")
+    raise ValueError("func only takes values: avg, min, max, med, std")
 
 
 def trend_coeff(pdf: pyspark.sql.dataframe.DataFrame, var: str, n: int, key_var: str,time_var: str) -> pyspark.sql.dataframe.DataFrame:
