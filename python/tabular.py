@@ -87,6 +87,46 @@ def agg_cols_pos(pdf: pd.DataFrame, string: str, position: str, func: str) -> pd
   else:
     raise ValueError('func only takes values: sum, avg, max, min')
 
+def rolling_aggregate(pdf: pd.DataFrame, var: str, n: int, func: str, key_var: str, time_var: str) -> pd.DataFrame:
+
+    """
+    Get rolling aggreagte of a numeric column based on a key and time variable.
+    It will calculate the rolling aggregate considering values of the last n rows
+
+    Args:
+        pdf (pd.DataFrame): Input pandas dataframe.
+        var (str): Column to aggragate
+        n (int): Number of periods to be considered for calculating the aggregate
+        func (str): Aggregate function
+        key_var (str): Key column
+        time_var (str): The time variable
+
+    Returns:
+        pd.DataFrame: The original DataFrame adding the output aggregate column
+
+    Raises:
+        ValueError: When the func is not any of the values: sum, avg, max, min, med, std
+
+  """
+
+  t = pdf.sort_values([key_var, time_var], ascending=[True, True])
+  if func == 'sum':
+    t[func+'_'+var+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).sum().reset_index()[var].values
+  elif func == 'max':
+    t[func+'_'+var+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).max().reset_index()[var].values
+  elif func == 'min':
+    t[func+'_'+var+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).min().reset_index()[var].values
+  elif func == 'med':
+    t[func+'_'+var+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).median().reset_index()[var].values
+  elif func == 'std':
+    t[func+'_'+var+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).std().reset_index()[var].values
+  elif func == 'avg':
+    t[func+'_'+var+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).mean().reset_index()[var].values
+  else:
+    raise ValueError('func only takes values: sum, avg, max, min, med, std')
+
+  return t
+
 def clean_date(pdf: pd.DataFrame, date_var: str) -> pd.Series:
   return pdf[date_var].apply(lambda x: x[0:10])
 
