@@ -111,17 +111,17 @@ def rolling_aggregate(pdf: pd.DataFrame, var: str, n: int, func: str, key_var: s
 
   t = pdf.sort_values([key_var, time_var], ascending=[True, True])
   if func == 'sum':
-    t[var+'_'+func+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).sum().reset_index()[var].values
+    t[func+'_'+var+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).sum().reset_index()[var].values
   elif func == 'max':
-    t[var+'_'+func+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).max().reset_index()[var].values
+    t[func+'_'+var+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).max().reset_index()[var].values
   elif func == 'min':
-    t[var+'_'+func+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).min().reset_index()[var].values
+    t[func+'_'+var+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).min().reset_index()[var].values
   elif func == 'med':
-    t[var+'_'+func+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).median().reset_index()[var].values
+    t[func+'_'+var+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).median().reset_index()[var].values
   elif func == 'std':
-    t[var+'_'+func+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).std().reset_index()[var].values
+    t[func+'_'+var+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).std().reset_index()[var].values
   elif func == 'avg':
-    t[var+'_'+func+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).mean().reset_index()[var].values
+    t[func+'_'+var+'_'+str(n)] = t.groupby(key_var)[var].rolling(window=n,min_periods=1).mean().reset_index()[var].values
   else:
     raise ValueError('func only takes values: sum, avg, max, min, med, std')
 
