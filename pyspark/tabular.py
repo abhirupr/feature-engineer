@@ -5,7 +5,7 @@ def clean_date(pdf: pyspark.sql.dataframe.DataFrame, date_col_list: list) -> pys
     Clean a date column in string format and convert into date format
 
     Args:
-        pdf (pyspark.sql.dataframe.DataFrame): Input pysopark sql dataframe.
+        pdf (pyspark.sql.dataframe.DataFrame): Input pyspark sql dataframe.
         date_col_list (list): List of date columns
 
     Returns:
@@ -20,7 +20,7 @@ def agg_cols(pdf: pyspark.sql.dataframe.DataFrame, output_var: str, col_list: li
     Aggregate multiple columns at a row level 
 
     Args:
-        pdf (pyspark.sql.dataframe.DataFrame): Input pysopark sql dataframe.
+        pdf (pyspark.sql.dataframe.DataFrame): Input pyspark sql dataframe.
         output_var (str): Name of the output column
         col_list (list): List of input columns
         metric (str): 'sum', 'avg', 'max' or 'min', the aggregate function applied across columns
@@ -47,7 +47,7 @@ def first_date_month(pdf: pyspark.sql.dataframe.DataFrame, date_var: str, output
     Get the starting month date of the respective dates in a date column
 
     Args:
-        pdf (pyspark.sql.dataframe.DataFrame): Input pysopark sql dataframe.
+        pdf (pyspark.sql.dataframe.DataFrame): Input pyspark sql dataframe.
         date_var (str): Input date column
         output_date_var (str): Output column of starting month dates of respective date_var values
 
@@ -62,7 +62,7 @@ def get_ratio(pdf: pyspark.sql.dataframe.DataFrame, output_var: str, numerator_v
     Get the ratio of two columns and assign a float value when the denominator is 0 or Null
 
     Args:
-        pdf (pyspark.sql.dataframe.DataFrame): Input pysopark sql dataframe.
+        pdf (pyspark.sql.dataframe.DataFrame): Input pyspark sql dataframe.
         output_var (str): Name of the output column with the ratio
         numerator_var (str): Numerator column
         denominator_var (str): Denominator column
@@ -81,7 +81,7 @@ def rolling_aggregate(pdf: pyspark.sql.dataframe.DataFrame,var: str,n: int,func:
     It will calculate the rolling aggregate considering values of the last n rows
 
     Args:
-        pdf (pyspark.sql.dataframe.DataFrame): Input pysopark sql dataframe.
+        pdf (pyspark.sql.dataframe.DataFrame): Input pyspark sql dataframe.
         n (int): Number of periods to be considered for calculating the aggregate
         func (str): Aggregate function
         key_var (str): Key column
@@ -190,7 +190,7 @@ def trend_coeff(pdf: pyspark.sql.dataframe.DataFrame, var: str, n: int, key_var:
     Slope coefficient for the best fit line with intercept of a variable
 
     Args:
-        pdf (pyspark.sql.dataframe.DataFrame): Input pysopark sql dataframe.
+        pdf (pyspark.sql.dataframe.DataFrame): Input pyspark sql dataframe.
         var (str): Input variable
         n (int): Number of periods
         key_var (str): Key column
