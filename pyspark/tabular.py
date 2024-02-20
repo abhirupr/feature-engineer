@@ -82,6 +82,7 @@ def rolling_aggregate(pdf: pyspark.sql.dataframe.DataFrame,var: str,n: int,func:
 
     Args:
         pdf (pyspark.sql.dataframe.DataFrame): Input pyspark sql dataframe.
+        var (str): Column to aggragate
         n (int): Number of periods to be considered for calculating the aggregate
         func (str): Aggregate function
         key_var (str): Key column
@@ -119,6 +120,7 @@ def rolling_aggregate_pre(pdf: pyspark.sql.dataframe.DataFrame,var: str,n: int,f
 
     Args:
         pdf (pyspark.sql.dataframe.DataFrame): Input pysopark sql dataframe.
+        var (str): Column to aggragate
         n (int): Number of periods to be considered for calculating the aggregate
         func (str): Aggregate function
         key_var (str): Key column
@@ -155,6 +157,7 @@ def rolling_aggregate_dynm(pdf: pyspark.sql.dataframe.DataFrame,var: str,n: int,
 
     Args:
         pdf (pyspark.sql.dataframe.DataFrame): Input pysopark sql dataframe.
+        var (str): Column to aggragate
         n (int): Number of periods to be considered for calculating the aggregate
         k (int): Starting point of the period
         func (str): Aggregate function
