@@ -254,3 +254,16 @@ def trend_coeff(pdf: pyspark.sql.dataframe.DataFrame, var: str, n: int, key_var:
 
   return pdf.drop(*['denom','x_bar_diff','y_col','y_bar','y_bar_diff','x_y_col'])
 
+def shape(pdf: pyspark.sql.dataframe.DataFrame) -> str:
+  """
+  Prints the shape of the pyspark sql dataframe (Number of rows and columns)
+
+  Args:
+    pdf (pyspark.sql.dataframe.DataFrame): The pyspark input dataframe
+
+  Returns:
+    str: The shape of the dataframe
+  """
+  print(f"Rows:  {merch_takeup.count()}")
+  print(f"Columns:  {len(merch_takeup.columns)}")
+
