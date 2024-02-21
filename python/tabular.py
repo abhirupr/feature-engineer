@@ -89,7 +89,7 @@ def agg_cols_pos(pdf: pd.DataFrame, string: str, position: str, func: str) -> pd
 
 def rolling_aggregate(pdf: pd.DataFrame, var: str, n: int, func: str, key_var: str, time_var: str) -> pd.DataFrame:
 
-    """
+  """
     Get rolling aggreagte of a numeric column based on a key and time variable.
     It will calculate the rolling aggregate considering values of the last n rows
 
