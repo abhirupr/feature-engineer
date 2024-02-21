@@ -265,6 +265,6 @@ def shape(pdf: pyspark.sql.dataframe.DataFrame) -> str:
   Returns:
     str: The shape of the dataframe
   """
-  print(f"Rows:  {merch_takeup.count()}")
-  print(f"Columns:  {len(merch_takeup.columns)}")
+  print(f"Rows:  {pdf.count()}")
+  print(f"Columns:  {len(pdf.columns)}")
 
