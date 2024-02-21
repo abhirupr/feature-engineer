@@ -1,3 +1,4 @@
+import pyspark
 import pyspark.sql.functions as F 
 
 def clean_date(pdf: pyspark.sql.dataframe.DataFrame, date_col_list: list) -> pyspark.sql.dataframe.DataFrame:
@@ -152,7 +153,7 @@ def rolling_aggregate_pre(pdf: pyspark.sql.dataframe.DataFrame,var: str,n: int,f
   else:
     raise ValueError("func only takes values: avg, min, max, med, std")
 
-def rolling_aggregate_dynm(pdf: pyspark.sql.dataframe.DataFrame,var: str,n: int, k=int,func: str,key_var: str,time_var: str) -> pyspark.sql.dataframe.DataFrame:
+def rolling_aggregate_dynm(pdf: pyspark.sql.dataframe.DataFrame,var: str,n: int, k: int,func: str,key_var: str,time_var: str) -> pyspark.sql.dataframe.DataFrame:
 
   """
     Get rolling aggreagte of a numeric column based on a key and time variable for last n period with the option of setting the starting point of the period
