@@ -265,6 +265,21 @@ def shape(pdf: pyspark.sql.dataframe.DataFrame) -> str:
   Returns:
     str: The shape of the dataframe
   """
-  print(f"Rows:  {merch_takeup.count()}")
-  print(f"Columns:  {len(merch_takeup.columns)}")
+  print(f"Rows:  {pdf.count()}")
+  print(f"Columns:  {len(pdf.columns)}")
 
+def date_to_month(pdf: pyspark.sql.dataframe.DataFrame, output_month: str, input_date: str) -> pyspark.sql.dataframe.DataFrame:
+
+  """
+  Converts a date column ( in 'YYYY-MM-DD' format) to 'YYYYMM' long format
+
+  Args:
+      pdf (pyspark.sql.dataframe.DataFrame): Input dataframe
+      output_month (str): The output long format column name
+      input_date (str): The input date format column name
+
+  Returns:
+      pyspark.sql.dataframe.DataFrame: The original dataframe with the output_month column added
+
+  """
+  return pdf.withColumn(output_month, F.substring(F.regexp_replace(F.col(input_date), '-', ''),1,6).cast('long'))
