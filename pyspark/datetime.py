@@ -45,3 +45,19 @@ def end_date_month(pdf: pyspark.sql.dataframe.DataFrame, output_date_var: str, i
   """
 
   return pdf.withColumn(output_date_var, F.last_day(F.col(input_date_var)))
+
+def date_to_month(pdf: pyspark.sql.dataframe.DataFrame, output_month: str, input_date: str) -> pyspark.sql.dataframe.DataFrame:
+
+  """
+  Converts a date column ( in 'YYYY-MM-DD' format) to 'YYYYMM' long format
+
+  Args:
+      pdf (pyspark.sql.dataframe.DataFrame): Input dataframe
+      output_month (str): The output long format column name
+      input_date (str): The input date format column name
+
+  Returns:
+      pyspark.sql.dataframe.DataFrame: The original dataframe with the output_month column added
+
+  """
+  return pdf.withColumn(output_month, F.substring(F.regexp_replace(F.col(input_date), '-', ''),1,6).cast('long'))
