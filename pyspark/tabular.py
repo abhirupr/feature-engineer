@@ -244,9 +244,103 @@ def shape(pdf: pyspark.sql.dataframe.DataFrame, print_shape: bool = False):
   else:
     return (pdf.count(), len(pdf.columns))
 
-def rolling_master(pdf: pyspark.sql.dataframe.DataFrame, period_list: list, metrics_list: list, col_excl_list: list, key_var: str,time_var: str) -> pyspark.sql.dataframe.DataFrame:
 
-  if len(preiod_list) == 2:
-    pass
+def rolling_master(pdf: pyspark.sql.dataframe.DataFrame, period_list: list, metrics_list: list, non_feature_list: list, key_var: str, time_var: str, all_period_trend: bool = True) -> pyspark.sql.dataframe.DataFrame:
+
+  """
+    Get the rolling aggregates and slope coefficient of a numeric column based on a key and time variable 
+
+    For example, if the period list is [3,6] and the metric_list is [avg, max] then it will generate
+    1. avg & max of last 3 periods
+    2. avg & max of last 6 periods
+    3. latest / avg of last 3 periods
+    4. latest / avg of last 6 periods
+    5. avg of last 3 periods / avg of last 6 periods
+    6. avg of last 3 periods / avg of pre last 3 periods
+
+    If 'avg' not passed in the metrics_list then it will skip generating features from 3 to 6
+
+    Args:
+        pdf (pyspark.sql.dataframe.DataFrame): Input pyspark sql dataframe.
+        period_list (list): List containing two periods on which the rolling aggregate is calculated
+        metrics_list (list): List of aggregate function
+        non_feature_list (list): List of columns excluded from the rolling aggregate generation
+        key_var (str): Key column
+        time_var (str): Time column
+        all_period_trend (bool): If True will calculate the slope trend of both the periods else will only calculate for the highest period. Default: True
+
+    Returns:
+        pyspark.sql.dataframe.DataFrame: The original DataFrame adding the output rolling aggregated columns
+
+    Raises:
+        ValueError: When the first element of the period_list is not greater than 1
+        ValueError: When the first element of the period_list is not less than the second element
+        ValueError: When the length of the period_list is not 2
+
+  """
+
+  if len(period_list) == 2:
+    if period_list[0]<period_list[1]:
+      if period_list[0]>1:
+        feature_columns = [c for c in pdf.columns if c not in non_feature_list]
+
+        for c in feature_columns:
+          pdf = rolling_aggregate_pre(pdf, c, period_list[0], 'avg', key_var, time_var)
+          for m in metrics_list:
+            for p in period_list:
+              pdf = rolling_aggregate(pdf, c, p, m, key_var, time_var)
+              
+
+        first_period_cols = [c for c in pdf.columns if c.endswith('_'+str(period_list[0])) & c.startswith('avg')]
+
+        second_period_cols = [c for c in pdf.columns if c.endswith('_'+str(period_list[1])) & c.startswith('avg')]
+
+        # latest vs avg of first period vars
+        if len(feature_columns) == len(first_period_cols):
+          for i,j in tuple(zip(feature_columns,first_period_cols)):
+            pdf = get_ratio(pdf, i+'_1v'+str(period_list[0]), i, j, 0)
+        else:
+          print('Skipped latest vs avg of first period vars')
+
+        # latest vs avg of second period vars
+        if len(feature_columns) == len(second_period_cols):
+          for i,j in tuple(zip(feature_columns,second_period_cols)):
+            pdf = get_ratio(pdf, i+'_1v'+str(period_list[1]), i, j, 0)
+        else:
+          print('Skipped latest vs avg of second period vars')
+
+        # avg of first period v avg of second period vars
+        if len(feature_columns) == len(first_period_cols) == len(second_period_cols) :
+          for i,j,k in tuple(zip(feature_columns,first_period_cols,second_period_cols)):
+            pdf = get_ratio(pdf, i+'_'+str(period_list[0])+'v'+str(period_list[1]), j, k, 0)
+        else:
+          print('Skipped avg of first period v avg of second period vars')
+
+        # avg of first period v avg of pre first period vars
+        first_period_cols_pre = [c for c in pdf.columns if c.endswith('_'+str(period_list[0])+'_pre') & c.startswith('avg')]
+        pdf = pdf.fillna(0, subset=first_period_cols_pre)
+
+        if len(feature_columns) == len(first_period_cols) == len(first_period_cols_pre) :
+          for i,j,k in tuple(zip(feature_columns,first_period_cols,first_period_cols_pre)):
+            pdf = get_ratio(pdf, i+'_'+str(period_list[0])+'v'+str(period_list[0]), j, k, 0)
+        else:
+          print('Skipped avg of first period v avg of pre first period vars')
+
+        pdf = pdf.drop(*first_period_cols_pre)
+
+        if all_period_trend:
+          for c in feature_columns:
+            for p in period_list:
+              pdf = trend_coeff(pdf, c, p, key_var, time_var)
+        else:
+          for c in feature_columns:
+            pdf = trend_coeff(pdf, c, period_list[1], key_var, time_var)
+
+        return pdf
+ 
+      else:
+        raise ValueError("the first element of period_list should be greater than one")
+    else:
+      raise ValueError("the first element of period_list should be less than the second element")
   else:
-    pass
+    raise ValueError("length of period_list should be 2")
