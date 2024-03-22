@@ -217,7 +217,7 @@ def trend_coeff(pdf: pyspark.sql.dataframe.DataFrame, var: str, n: int, key_var:
   def dot_product(v1, v2):
       return sum([x * y for x, y in zip(v1, v2)])
     
-  dot_product_udf = udf(dot_product, DoubleType())
+  dot_product_udf = F.udf(dot_product, DoubleType())
 
   # Calculate the dot product of mean deviations of y and x which sthe numerator of the slope coefficient
   pdf = pdf.withColumn("x_y_col", dot_product_udf(F.col("x_bar_diff"), F.col("y_bar_diff")))
