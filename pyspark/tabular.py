@@ -244,3 +244,9 @@ def shape(pdf: pyspark.sql.dataframe.DataFrame, print_shape: bool = False):
   else:
     return (pdf.count(), len(pdf.columns))
 
+def rolling_master(pdf: pyspark.sql.dataframe.DataFrame, period_list: list, metrics_list: list, col_excl_list: list, key_var: str,time_var: str) -> pyspark.sql.dataframe.DataFrame:
+
+  if len(preiod_list) == 2:
+    pass
+  else:
+    pass
