@@ -248,17 +248,22 @@ def shape(pdf: pyspark.sql.dataframe.DataFrame, print_shape: bool = False):
 def rolling_master(pdf: pyspark.sql.dataframe.DataFrame, period_list: list, metrics_list: list, non_feature_list: list, key_var: str, time_var: str, all_period_trend: bool = True) -> pyspark.sql.dataframe.DataFrame:
 
   """
-    Get the rolling aggregates and slope coefficient of a numeric column based on a key and time variable 
+    Get the rolling aggregates and slope coefficient of numeric columns in a DataFrame based on a key and time variable 
 
-    For example, if the period list is [3,6] and the metric_list is [avg, max] then it will generate
-    1. avg & max of last 3 periods
-    2. avg & max of last 6 periods
+    For example, if the period list is [3,6] and the metric_list is [avg, max, med, std] then it will generate
+    1. average, max, median and standard deviation of last 3 periods
+    2. average, max, median and standard deviation of last 6 periods
     3. latest / avg of last 3 periods
     4. latest / avg of last 6 periods
     5. avg of last 3 periods / avg of last 6 periods
     6. avg of last 3 periods / avg of pre last 3 periods
+    7. median of last 3 months by standard deviation of last 3 months
+    8. median of last 6 months by standard deviation of last 6 months
+    9. slope coefficient of last 3 months
+    10. slope coefficient of last 6 months
 
     If 'avg' not passed in the metrics_list then it will skip generating features from 3 to 6
+    If 'med' or 'std' not passed in the metrics_list then it will skip generating features 7 and 8
 
     Args:
         pdf (pyspark.sql.dataframe.DataFrame): Input pyspark sql dataframe.
@@ -267,7 +272,7 @@ def rolling_master(pdf: pyspark.sql.dataframe.DataFrame, period_list: list, metr
         non_feature_list (list): List of columns excluded from the rolling aggregate generation
         key_var (str): Key column
         time_var (str): Time column
-        all_period_trend (bool): If True will calculate the slope trend of both the periods else will only calculate for the highest period. Default: True
+        all_period_trend (bool): If True will calculate the slope trend of both the periods (9 and 10) else will only calculate for the highest period(only 10). Default: True
 
     Returns:
         pyspark.sql.dataframe.DataFrame: The original DataFrame adding the output rolling aggregated columns
@@ -328,6 +333,21 @@ def rolling_master(pdf: pyspark.sql.dataframe.DataFrame, period_list: list, metr
 
         pdf = pdf.drop(*first_period_cols_pre)
 
+        # Median by Standard Deviation columns
+
+        median_cols = [c for c in pdf.columns if c.startswith('med_')]
+        std_cols = [c for c in pdf.columns if c.startswith('std_')]
+
+        if len(median_cols) == len(std_cols) != 0:
+          for i,j in tuple(zip(median_cols, std_cols)):
+            if i[4:] == j[4:]:
+              pdf = get_ratio(pdf, 'med_std_'+i[4:], i, j, 0)
+            else:
+              print(f'median and standard deviation columns are not same. For median {i[4:]} and for standard deviation {j[4:]}')
+        else:
+          print('Skipped median by standard deviation ratios')
+
+        # Slope of trend line
         if all_period_trend:
           for c in feature_columns:
             for p in period_list:
