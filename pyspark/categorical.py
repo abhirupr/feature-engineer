@@ -43,7 +43,7 @@ class KFoldTargetEncoderTrain:
     for tr_ind, val_ind in self._kfold_indices(X):
       X_tr, X_val = X.filter(F.col("id").isin(tr_ind)), X.filter(F.col("id").isin(val_ind))
       mean_encoded_values = X_tr.groupBy(self.cat_col).agg(F.mean(self.target_col).alias(col_mean_name))
-      X_val = X_val.join(mean_encoded_values, on=self.cat_col, how="left")
+      X_val = X_val.join(mean_encoded_values, on=self.cat_col, how="left").select(X_final.columns)
       X_val = X_val.withColumn(col_mean_name, F.when(F.col(col_mean_name).isNull(), mean_of_target).otherwise(F.col(col_mean_name)))
       X_final = X_final.union(X_val)
 
